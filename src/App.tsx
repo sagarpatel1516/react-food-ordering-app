@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
 import Home from './ui/Home';
 import Menu, { loader as menuLoader } from './features/menu/Menu';
 import Cart from './features/cart/Cart';
@@ -15,10 +16,6 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     errorElement: <Error />,
     children: [
-      {
-        path: '/',
-        element: <Home />,
-      },
       {
         path: '/',
         element: <Home />,
@@ -49,8 +46,13 @@ const router = createBrowserRouter([
   },
 ]);
 
-function App() {
-  return <RouterProvider router={router} />;
+export default function App() {
+  return (
+    <RouterProvider
+      router={router}
+      future={{
+        v7_startTransition: true,
+      }}
+    />
+  );
 }
-
-export default App;

@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../hooks';
 import { useNavigate } from 'react-router-dom';
-import { updateName } from '../user/userSlice';
+import { updateName } from './userSlice';
 
 function CreateUser() {
   const [userName, setUserName] = useState('');
-  const dispatch = useDispatch();
+
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  function handleSubmit(e) {
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (!userName) return;
+
     dispatch(updateName(userName));
+
     navigate('/menu');
   }
 

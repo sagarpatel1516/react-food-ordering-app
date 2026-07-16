@@ -1,20 +1,27 @@
-// Test ID: IIDSAT
-
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
-} from '../../utils/helpers';
-import { useLoaderData } from 'react-router-dom';
-import { getOrder } from '../../services/apiRestaurant';
-import OrderItem from './OrderItem';
-import UpdateOrder from './UpdateOrder';
+} from "../../utils/helpers";
+
+import {
+  useLoaderData,
+  type LoaderFunctionArgs,
+} from "react-router-dom";
+
+import { getOrder } from "../../services/apiRestaurant";
+
+import OrderItem from "./OrderItem";
+import UpdateOrder from "./UpdateOrder";
+
+import type { OrderType } from "../../types/order";
 
 function Order() {
-  // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
+  // Everyone can search for all orders, so for privacy reasons
+  // we exclude customer name and address.
 
-  const order = useLoaderData();
-  console.log(order);
+  const order = useLoaderData() as OrderType;
+
   const {
     id,
     status,
@@ -24,12 +31,15 @@ function Order() {
     estimatedDelivery,
     cart,
   } = order;
+
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
   return (
     <div className="space-y-8 px-4 py-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold">Order #{id} Status</h2>
+        <h2 className="text-xl font-semibold">
+          Order #{id} Status
+        </h2>
 
         <div className="space-x-2">
           {priority && (
@@ -37,6 +47,7 @@ function Order() {
               Priority
             </span>
           )}
+
           <span className="rounded-full bg-green-500 px-2 py-1 text-xs uppercase tracking-wide text-white">
             {status} order
           </span>
@@ -46,16 +57,21 @@ function Order() {
       <div className="flex flex-wrap items-center justify-between gap-2 bg-stone-200 px-6 py-5">
         <p className="font-medium">
           {deliveryIn >= 0
-            ? `Only ${calcMinutesLeft(estimatedDelivery)} minutes left 😃`
-            : 'Order should have arrived'}
+            ? `Only ${deliveryIn} minutes left 😃`
+            : "Order should have arrived"}
         </p>
+
         <p className="text-xs text-stone-500">
           (Estimated delivery: {formatDate(estimatedDelivery)})
         </p>
       </div>
-      <ul className="divide-y divide-stone-200 border-b border-t">
+
+      <ul className="divide-y divide-stone-200 border-y">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            key={item.pizzaId}
+            item={item}
+          />
         ))}
       </ul>
 
@@ -63,22 +79,28 @@ function Order() {
         <p className="text-sm font-medium text-stone-600">
           Price pizza: {formatCurrency(orderPrice)}
         </p>
+
         {priority && (
           <p className="text-sm font-medium text-stone-600">
             Price priority: {formatCurrency(priorityPrice)}
           </p>
         )}
+
         <p className="font-bold">
-          To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
+          To pay on delivery:{" "}
+          {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+
       {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
-export async function loader({ params }) {
-  const order = await getOrder(params.orderId);
-  return order;
+
+export async function loader({
+  params,
+}: LoaderFunctionArgs): Promise<OrderType> {
+  return await getOrder(params.orderId as string);
 }
 
 export default Order;
